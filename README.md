@@ -31,7 +31,7 @@ As camadas estão contidas no diretório `src`:
 ### 1. Clonando o repositório e instalando dependências:
 
 ```bash
-git clone <URL_DO_REPO>
+git clone https://github.com/MonariAndre/API-JS.git
 cd API-JS
 npm install
 ```
