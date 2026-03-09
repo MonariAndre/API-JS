@@ -1,0 +1,167 @@
+openapi: 3.0.0
+info:
+  title: Test Jitterbit - Order API
+  version: 1.0.0
+  description: API REST para recepção, mapeamento de De-Para e armazamento de Pedidos e Itens em Banco de Dados Relacional.
+servers:
+  - url: http://localhost:3000
+    description: Servidor de Desenvolvimento Local
+paths:
+  /order:
+    post:
+      summary: Cria um novo pedido e seus itens associados
+      description: Endpoint para envio de novos pedidos recebidos através de JSON. Realiza de-para e persiste os dados numa transação SQL.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderInputRequest'
+      responses:
+        '201':
+          description: Pedido criado com sucesso e devolvido no formato final.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderStandardResponse'
+        '400':
+          description: Dados do pedido preenchidos de forma incorreta ou em formato inválido.
+        '500':
+          description: Erro interno no servidor.
+  /order/list:
+    get:
+      summary: Lista todos os pedidos
+      description: Retorna uma listagem na ordem decrescente contendo dados base dos pedidos criados.
+      responses:
+        '200':
+          description: Uma listagem de pedidos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderStandardResponse'
+  /order/{id}:
+    get:
+      summary: Consulta um pedido por ID
+      description: Retorna as informações integrais do pedido e a lista de itens relacionados.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: O ID do pedido gerado (numeroPedido original)
+      responses:
+        '200':
+          description: Sucesso ao buscar o pedido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderStandardResponse'
+        '404':
+          description: Pedido não encontrado.
+    put:
+      summary: Atualiza de um pedido (Parcial ou Total) por ID
+      description: Possibilita a atualização do valor final do pedido ou a listagem exata de itens.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: O ID do pedido a ser atualizado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderInputRequest'
+      responses:
+        '200':
+          description: Avaliação do pedido re-executada via DB e retornada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderStandardResponse'
+        '400':
+          description: Problemas na formação estrutural da requisição.
+        '404':
+          description: Pedido não encontrado para ser modificado.
+    delete:
+      summary: Deleta o pedido
+      description: Apaga o pedido do sistema e seus itens atrelados em banco atráves de ON DELETE CASCADE.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: O ID do pedido a ser apagado
+      responses:
+        '204':
+          description: Exclusão com sucesso. Nenhum conteúdo de resposta atrelado.
+        '404':
+          description: Pedido não encontrado.
+
+components:
+  schemas:
+    OrderInputRequest:
+      type: object
+      required:
+        - numeroPedido
+        - valorTotal
+        - dataCriacao
+        - items
+      properties:
+        numeroPedido:
+          type: string
+          example: v10089015vdb-01
+        valorTotal:
+          type: number
+          example: 10000
+        dataCriacao:
+          type: string
+          format: date-time
+          example: '2023-07-19T12:24:11.5299601+00:00'
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              idItem:
+                type: string
+                example: "2434"
+              quantidadeItem:
+                type: integer
+                example: 1
+              valorItem:
+                type: number
+                example: 1000
+    OrderStandardResponse:
+      type: object
+      properties:
+        orderId:
+          type: string
+          example: v10089015vdb-01
+        value:
+          type: number
+          example: 10000
+        creationDate:
+          type: string
+          format: date-time
+          example: '2023-07-19T12:24:11.529Z'
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              productId:
+                type: integer
+                example: 2434
+              quantity:
+                type: integer
+                example: 1
+              price:
+                type: number
+                example: 1000
