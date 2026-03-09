@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const orderRoutes = require('./routes/orderRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,6 +10,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 // Registro das rotas raiz
+app.use('/auth', authRoutes);
 app.use('/', orderRoutes);
 
 // Handling básico pra evitar que reqs pra rotas não existentes derrubem a aplicação (opcional, boa prática)

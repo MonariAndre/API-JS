@@ -67,9 +67,24 @@ O console deverá apresentar a indicação positiva:
 
 ---
 
+## 🔒 Autenticação JWT (Bearer Token)
+
+A API agora é protegida por **JWT (JSON Web Token)**. Para consumir os endpoints de Pedidos (`/order`), você precisa primeiro gerar um token de acesso na rota pública de Login.
+
+**1. Gerar o Token de Acesso (POST `/auth/login`)**
+*Credenciais mockadas para o teste:* `username: admin` | `password: admin`
+```bash
+curl -X POST http://localhost:3000/auth/login \
+-H "Content-Type: application/json" \
+-d "{ \"username\": \"admin\", \"password\": \"admin\" }"
+```
+Copie o valor do `token` retornado. Em todas as requisições subsequentes para `/order`, você deve incluir este token no cabeçalho HTTP `Authorization: Bearer <SEU_TOKEN>`.
+
+---
+
 ## 🔍 Como Testar os Endpoints da API
 
-Você pode usar o Postman, Insomnia ou a extensão "REST Client" no VSCode. Toda a definição das APIs também pode ser importada via arquivo contido `swagger.yaml`. 
+Você pode usar o Postman, Insomnia ou a extensão "REST Client" no VSCode. Toda a definição das APIs também pode ser importada via arquivo contido `swagger.yaml` (que já suporta validação visual do Bearer Token). 
 
 Abaixo exemplos rápidos em curl:
 
@@ -77,29 +92,34 @@ Abaixo exemplos rápidos em curl:
 ```bash
 curl -X POST http://localhost:3000/order \
 -H "Content-Type: application/json" \
+-H "Authorization: Bearer SEU_TOKEN_AQUI" \
 -d "{ \"numeroPedido\": \"v10089015vdb-01\", \"valorTotal\": 10000, \"dataCriacao\": \"2023-07-19T12:24:11.5299601+00:00\", \"items\": [ { \"idItem\": \"2434\", \"quantidadeItem\": 1, \"valorItem\": 1000 } ] }"
 ```
 
 **2. List Orders (GET `/order/list`)**
 ```bash
-curl -X GET http://localhost:3000/order/list
+curl -X GET http://localhost:3000/order/list \
+-H "Authorization: Bearer SEU_TOKEN_AQUI"
 ```
 
 **3. Get Order By Id (GET `/order/:id`)**
 ```bash
-curl -X GET http://localhost:3000/order/v10089015vdb-01
+curl -X GET http://localhost:3000/order/v10089015vdb-01 \
+-H "Authorization: Bearer SEU_TOKEN_AQUI"
 ```
 
 **4. Update Order (PUT `/order/:id`)** -> Mantive a lógica em atualização em massa.
 ```bash
 curl -X PUT http://localhost:3000/order/v10089015vdb-01 \
 -H "Content-Type: application/json" \
+-H "Authorization: Bearer SEU_TOKEN_AQUI" \
 -d "{ \"numeroPedido\": \"v10089015vdb-01\", \"valorTotal\": 25000, \"items\": [ { \"idItem\": \"9999\", \"quantidadeItem\": 5, \"valorItem\": 5000 } ] }"
 ```
 
 **5. Delete Order (DELETE `/order/:id`)**
 ```bash
-curl -X DELETE http://localhost:3000/order/v10089015vdb-01
+curl -X DELETE http://localhost:3000/order/v10089015vdb-01 \
+-H "Authorization: Bearer SEU_TOKEN_AQUI"
 ```
 
 ## ⚖️ Decisões Técnicas Aplicadas

@@ -6,7 +6,38 @@ info:
 servers:
   - url: http://localhost:3000
     description: Servidor de Desenvolvimento Local
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
 paths:
+  /auth/login:
+    post:
+      summary: Autenticação via JWT
+      description: Rota de login para resgatar o token de acesso (Bearer Auth). Utilize o usuário "**admin**" e a senha "**admin**".
+      security: [] # Esta rota deve ser exposta
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "admin"
+                password:
+                  type: string
+                  example: "admin"
+      responses:
+        '200':
+          description: Token obtido com sucesso
+        '401':
+          description: Credenciais inválidas
   /order:
     post:
       summary: Cria um novo pedido e seus itens associados
@@ -104,7 +135,6 @@ paths:
         '404':
           description: Pedido não encontrado.
 
-components:
   schemas:
     OrderInputRequest:
       type: object
